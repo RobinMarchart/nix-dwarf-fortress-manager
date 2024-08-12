@@ -5,6 +5,7 @@
   buildEnv,
   writeShellScriptBin,
   gawk,
+  coreutils,
   makeWrapper,
   dwarf-fortress,
   enableDFHack ? false,

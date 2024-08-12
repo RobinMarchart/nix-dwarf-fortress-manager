@@ -1,4 +1,5 @@
 {
+  coreutils,
   dwarf-fortress,
   writeShellScriptBin,
   settingsPkg,
@@ -45,10 +46,26 @@ let
       extraPackages
       ;
   };
-in
-writeShellScriptBin "dwarf-fortress${suffix}" ''
+  df-script = ''
   set -e
-  mkdir -p "${saveLocation}"
+  ${coreutils}/bin/mkdir -p "${saveLocation}"
   cd "${environment}"
-  exec LD_LIBRARY_PATH="''${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${environment}" ${environment}/dwarfort "$@"
-''
+  export LD_LIBRARY_PATH="''${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${environment}"
+  exec ${environment}/dwarfort "$@"
+'';
+  hack-script = ''
+  set -e
+  PATH=''${PATH:+':'$PATH':'}
+  if [[ $PATH != *':'''${coreutils}/bin''':'* ]]; then
+      PATH=$PATH'${coreutils}/bin'
+  fi
+  PATH=''${PATH#':'}
+  PATH=''${PATH%':'}
+  export PATH
+  ${coreutils}/bin/mkdir -p "${saveLocation}"
+  cd "${environment}"
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"${environment}/hack/libs":"${environment}/hack"
+  exec ${environment}/hack/dfhack-run "$@"
+'';
+in
+writeShellScriptBin "dwarf-fortress${suffix}" (if enableDFHack then hack-script else df-script)

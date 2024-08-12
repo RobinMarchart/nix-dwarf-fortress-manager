@@ -9,7 +9,7 @@
   };
   outputs =
     { nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (
+    (flake-utils.lib.eachDefaultSystem (
       system:
       let
         mods = import ./mods;
@@ -48,7 +48,7 @@
           };
 
         };
-        nixosModules.default = import ./module.nix;
+
       }
-    );
+    ))// {nixosModules.default = import ./module.nix;};
 }
