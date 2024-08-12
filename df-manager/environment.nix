@@ -51,7 +51,7 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
         ++ lib.optional enableDFHack dfhack
         ++ [ dwarf-fortress-unwrapped ];
       postBuild = ''
-        ln -s "${saveLocation}" "$out/save"
+        ln -s "${saveLocation}/save" "$out/save"
       '';
     }
   )

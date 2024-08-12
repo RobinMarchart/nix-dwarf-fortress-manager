@@ -1,7 +1,9 @@
 {
   coreutils,
+  util-linux,
   dwarf-fortress,
   writeShellScriptBin,
+  writeShellScript,
   settingsPkg,
   environmentPkg,
   enableDFHack ? false,
@@ -46,17 +48,26 @@ let
       extraPackages
       ;
   };
+  exec-overlay = writeShellScript "exec-overlayfs" ''
+    set -e
+    ${util-linux}/bin/mount -t overlay overlay -o lowerdir=${environment},upperdir=${saveLocation}/upper,workdir=${saveLocation}/work ${environment}
+    exec "$@"
+  '';
   df-script = ''
     set -e
-    ${coreutils}/bin/mkdir -p "${saveLocation}"
+    ${coreutils}/bin/mkdir -p "${saveLocation}/upper"
+    ${coreutils}/bin/mkdir "${saveLocation}/work"
+    ${coreutils}/bin/mkdir "${saveLocation}/save"
     export NIXPKGS_DF_HOME=${environment}
-    exec ${environment}/run_df "$@"
+    exec ${util-linux}/bin/unshare -mc --keep-caps ${exec-overlay} ${environment}/run_df "$@"
   '';
   hack-script = ''
     set -e
-    ${coreutils}/bin/mkdir -p "${saveLocation}"
+    ${coreutils}/bin/mkdir -p "${saveLocation}/upper"
+    ${coreutils}/bin/mkdir "${saveLocation}/work"
+    ${coreutils}/bin/mkdir "${saveLocation}/save"
     export NIXPKGS_DF_HOME=${environment}
-    exec ${environment}/dfhack "$@"
+    exec ${util-linux}/bin/unshare -mc --keep-caps ${exec-overlay} ${environment}/dfhack "$@"
   '';
 in
 writeShellScriptBin "dwarf-fortress${suffix}" (if enableDFHack then hack-script else df-script)
