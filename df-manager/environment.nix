@@ -44,8 +44,8 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
         [ settingsPkg ]
         ++ extraPackages
         ++ [ mods-dir ]
-        ++ lib.optional enableTWBT [ twbt ]
-        ++ lib.optional enableDFHack [ dfhack ]
+        ++ lib.optional enableTWBT twbt
+        ++ lib.optional enableDFHack dfhack
         ++ [ dwarf-fortress-unwrapped ];
       postBuild = ''
         ln -s "${saveLocation}" "$out/save"
