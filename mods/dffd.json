@@ -2,12 +2,26 @@
     "name": "vettlingr",
     "latest": "1.6-1",
     "folder": "Vettlingr",
+    "description": "Vettlingr tileset",
     "source": {
         "1.6-1": {
             "df-version": ["0.47.05"],
             "rm": ["data/init/init.txt","data/init/d_init.txt"],
             "url": "https://dffd.bay12games.com/download.php?id=14072&f=Vettlingr.zip",
             "hash": "sha256-aXKxqkWlb+278708ZNQ7KLOBKTlKLuT1BGXsP3S1R4E="
+        }
+    }
+},{
+    "name": "rekovs-dark-elves",
+    "latest": "1.0",
+    "folder": null,
+    "description": "Rekov's Dark Elves",
+    "source": {
+        "1.0": {
+            "df-version": ["0.47.05"],
+            "rm": ["data/init/colors.txt"],
+            "url": "https://dffd.bay12games.com/download.php?id=15662&f=RDEM1.0.zip",
+            "hash": "sha256-NhtExBLlsm0C4dG4mx15+12jY5BHqS3G2ffDkf0q80Q="
         }
     }
 }]

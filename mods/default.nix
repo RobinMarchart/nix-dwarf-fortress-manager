@@ -28,23 +28,28 @@ let
               meta = {
                 license = licenses.unfree;
                 platforms = platforms.all;
+                inherit (v) description;
               };
-              postFetch = ''
-                echo removing hidden files
-                rm -rf "$out"/.*
-                echo removing misc files
-                for file in $out/*; do
-                    name=$(basename "$file")
-                    if [[ "${v.folder}" != "$name" ]]; then
-                        rm -r "$file"
-                    fi
-                done
-                for dir in "$out"/"${v.folder}"/*/; do
-                    mv "$dir" "$out/"
-                done
-                echo removing mod folder
-                rm -r "$out/${v.folder}"
-              ''+lib.strings.concatMapStrings (path:"\nrm -r \"$out/${path}\"") source.rm;
+              postFetch =
+                ''
+                  echo removing hidden files
+                  rm -rf "$out"/.*
+                ''
+                + (lib.optionalString (v.folder != null) ''
+                  echo removing misc files
+                  for file in $out/*; do
+                      name=$(basename "$file")
+                      if [[ "${v.folder}" != "$name" ]]; then
+                          rm -r "$file"
+                      fi
+                  done
+                  for dir in "$out"/"${v.folder}"/*/; do
+                      mv "$dir" "$out/"
+                  done
+                  echo removing mod folder
+                  rm -r "$out/${v.folder}"
+                '')
+                + lib.strings.concatMapStrings (path: "\nrm -r \"$out/${path}\"") source.rm;
             };
         in
         makeOverridable fetch { version = v.latest; };
