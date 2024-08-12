@@ -66,7 +66,10 @@ let
                 inherit version;
                 src = baseLayout;
                 buildPhase =
-                  "cp -r $src $out"
+                  ''
+                    cp -r "$src" "$out"
+                    chmod +w --recursive "$out"
+                  ''
                   + lib.strings.concatMapStrings (path: "\nrm -r \"$out/${path}\"") rm
                   + "cd $out"
                   + lib.strings.concatMapStrings (patch: "\npatch -p0 < \"${patch}\"") patches;
