@@ -1,4 +1,4 @@
-{ fetchzip, lib }:
+{ fetchzip, lib, gnupatch, coreutils }:
 let
   inherit (lib)
     importJSON
@@ -13,7 +13,7 @@ let
       value =
         let
           fetch =
-            { version }:
+            { version, rm, patches }:
             let
               source = v.source.${version};
             in
@@ -40,19 +40,20 @@ let
                   for file in $out/*; do
                       name=$(basename "$file")
                       if [[ "${v.folder}" != "$name" ]]; then
-                          rm -r "$file"
+                          ${coreutils}/bin/rm -r "$file"
                       fi
                   done
                   for dir in "$out"/"${v.folder}"/*/; do
-                      mv "$dir" "$out/"
+                      ${coreutils}/bin/mv "$dir" "$out/"
                   done
                   echo removing mod folder
                   rm -r "$out/${v.folder}"
                 '')
-                + lib.strings.concatMapStrings (path: "\nrm -r \"$out/${path}\"") source.rm;
+                + lib.strings.concatMapStrings (path: "\n${coreutils}/bin/rm -r \"$out/${path}\"") (source.rm ++ rm)
+                + lib.strings.concatMapStrings (patch: "\n${gnupatch}/bin/patch -p0 < \"${patch}\"") patches;
             };
         in
-        makeOverridable fetch { version = v.latest; };
+          makeOverridable fetch { version = v.latest; rm = []; patches = []; };
     }) (importJSON ./dffd.json)
   );
 in
