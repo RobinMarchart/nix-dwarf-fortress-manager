@@ -15,8 +15,11 @@
 lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
   "dwarf-fortress: TWBT enabled but package not set"
   lib.throwIf
-  (enableTWBT && (twbt.dfVersion == dwarf-fortress-unwrapped.version))
+  (enableTWBT && (twbt.dfVersion != dwarf-fortress-unwrapped.version))
   "dwarf-fortress: twbt and dwarf fortress have incopatible versions"
+  lib.throwIf
+  (enableDFHack && (dfhack.dfVersion != dwarf-fortress-unwrapped.version))
+  "dwarf-fortress: dfhack and dwarf fortress have incopatible versions"
   lib.throwIf
   (enableTWBT && !enableDFHack)
   "dwarf-fortress: TWBT requires DFHack to be enabled"
