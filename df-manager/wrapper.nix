@@ -49,13 +49,13 @@ let
   df-script = ''
     set -e
     ${coreutils}/bin/mkdir -p "${saveLocation}"
-    export NIXPKGS_DF_HOME=${saveLocation}
-    exec ${environment}/df "$@"
+    export NIXPKGS_DF_HOME=${environment}
+    exec ${environment}/run_df "$@"
   '';
   hack-script = ''
     set -e
     ${coreutils}/bin/mkdir -p "${saveLocation}"
-    export NIXPKGS_DF_HOME=${saveLocation}
+    export NIXPKGS_DF_HOME=${environment}
     exec ${environment}/dfhack "$@"
   '';
 in
