@@ -61,7 +61,7 @@ in
     default = [ ];
     description = "dwarf fortress installs that should be prepared";
   };
-  config.home.packages = map (
+  config.home.packages = [pkgs.hello] ++ map (
     manager:
     pkgs.dwarf-fortress-packages.df-manager.override {
       inherit (manager)
