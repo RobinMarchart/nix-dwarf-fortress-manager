@@ -71,7 +71,7 @@ let
                     chmod +w --recursive "$out"
                   ''
                   + lib.strings.concatMapStrings (path: "\nrm -r \"$out/${path}\"") rm
-                  + "cd $out"
+                  + "\ncd \"$out\""
                   + lib.strings.concatMapStrings (patch: "\npatch -p0 < \"${patch}\"") patches;
                 passthru = {
                   inherit (source) df-version;
