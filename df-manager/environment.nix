@@ -49,7 +49,7 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
         ++ [ settingsPkg ]
         ++ lib.optional enableDFHack settingsHackPkg
         ++ [ mods-dir ]
-        ++ lib.optional enableTWBT twbt
+        ++ lib.optional enableTWBT twbt.lib
         ++ lib.optional enableDFHack dfhack
         ++ [ dwarf-fortress-unwrapped ];
       postBuild =
