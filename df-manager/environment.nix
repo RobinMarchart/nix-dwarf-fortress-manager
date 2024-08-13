@@ -5,6 +5,7 @@
   dfhack,
   twbt,
   settingsPkg,
+  settingsHackPkg,
   enableDFHack ? false,
   enableTWBT ? false,
   # location where game saves should be kept
@@ -44,14 +45,31 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
       name = "df.environment";
       ignoreCollisions = true;
       paths =
-        [ settingsPkg ]
-        ++ extraPackages
+        extraPackages
+        ++ [ settingsPkg ]
+        ++ lib.optional enableDFHack settingsHackPkg
         ++ [ mods-dir ]
         ++ lib.optional enableTWBT twbt
         ++ lib.optional enableDFHack dfhack
         ++ [ dwarf-fortress-unwrapped ];
-      postBuild = ''
-        ln -s "${saveLocation}/save" "$out/save"
-      '';
+      postBuild =
+        ''
+          echo linking mutable save files
+          ln -s "${saveLocation}/save" "$out/save"
+          ln -s "${saveLocation}/data/save" "$out/data/save"
+          echo linking mutable log files
+          ln -s "${saveLocation}/stderr.log" "$out/stderr.log"
+          ln -s "${saveLocation}/gamelog.txt" "$out/gamelog.txt"
+          ln -s "${saveLocation}/stderr.log" "$out/strace.log"
+          echo linking mutable index file
+          rm "$out/data/index"
+          ln -s "${saveLocation}/data/index" "$out/data/index"
+        ''
+        + lib.optionalString enableDFHack ''
+
+          echo linking mutable blueprint dir
+          rm "$out/blueprints"
+          ln -s "${saveLocation}/blueprints" "$out/blueprints"
+        '';
     }
   )

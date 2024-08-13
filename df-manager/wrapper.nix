@@ -1,10 +1,9 @@
 {
   coreutils,
-  util-linux,
   dwarf-fortress,
   writeShellScriptBin,
-  writeShellScript,
   settingsPkg,
+  settingsHackPkg,
   environmentPkg,
   enableDFHack ? false,
   enableTextMode ? false,
@@ -19,6 +18,13 @@
   modsList ? [ ],
   extraPackages ? [ ],
   suffix ? "",
+  extraNicks ? [ ],
+  defaultNicks ? true,
+  dfhackInit ? "",
+  onLoadInit ? "",
+  onMapLoadInit ? "",
+  onMapUnloadInit ? "",
+  onUnloadInit ? "",
 }:
 let
   settings = settingsPkg.override {
@@ -35,11 +41,26 @@ let
       dfSettings
       ;
   };
+  settingsHack = settingsHackPkg.override {
+    dwarf-fortress-unwrapped = dwarf-fortress.dwarf-fortress;
+    dfhack = dwarf-fortress.dfhack;
+    inherit
+      extraNicks
+      defaultNicks
+      dfhackInit
+      onLoadInit
+      onMapLoadInit
+      onMapUnloadInit
+      onUnloadInit
+      ;
+  };
+
   environment = environmentPkg.override {
     dwarf-fortress-unwrapped = dwarf-fortress.dwarf-fortress;
     dfhack = dwarf-fortress.dfhack;
     twbt = dwarf-fortress.twbt;
     settingsPkg = settings;
+    settingsHackPkg = settingsHack;
     inherit
       enableDFHack
       enableTWBT
@@ -48,26 +69,36 @@ let
       extraPackages
       ;
   };
-  exec-overlay = writeShellScript "exec-overlayfs" ''
-    set -e
-    ${util-linux}/bin/mount -t overlay overlay -o lowerdir=${environment},upperdir=${saveLocation}/upper,workdir=${saveLocation}/work ${environment}
-    exec "$@"
-  '';
   df-script = ''
     set -e
-    ${coreutils}/bin/mkdir -p "${saveLocation}/upper"
-    ${coreutils}/bin/mkdir "${saveLocation}/work"
-    ${coreutils}/bin/mkdir "${saveLocation}/save"
+    echo game directory: '${environment}'
+    ${coreutils}/bin/mkdir -p "${saveLocation}/save"
+    ${coreutils}/bin/mkdir -p "${saveLocation}/data/save"
+    ${coreutils}/bin/touch "${saveLocation}/stderr.log"
+    ${coreutils}/bin/touch "${saveLocation}/gamelog.txt"
+    ${coreutils}/bin/touch "${saveLocation}/strace.log"
+    ${coreutils}/bin/cp "${dwarf-fortress.dwarf-fortress}/data/index" "${saveLocation}/data/index"
+    ${coreutils}/bin/chmod +w "${saveLocation}/data/index"
     export NIXPKGS_DF_HOME=${environment}
-    exec ${util-linux}/bin/unshare -mc --keep-caps ${exec-overlay} ${environment}/run_df "$@"
+    exec ${environment}/run_df "$@"
   '';
   hack-script = ''
     set -e
-    ${coreutils}/bin/mkdir -p "${saveLocation}/upper"
-    ${coreutils}/bin/mkdir "${saveLocation}/work"
-    ${coreutils}/bin/mkdir "${saveLocation}/save"
+    echo game directory: '${environment}'
+    ${coreutils}/bin/mkdir -p "${saveLocation}/save"
+    ${coreutils}/bin/mkdir -p "${saveLocation}/data/save"
+    ${coreutils}/bin/touch "${saveLocation}/stderr.log"
+    ${coreutils}/bin/touch "${saveLocation}/gamelog.txt"
+    ${coreutils}/bin/touch "${saveLocation}/strace.log"
+    ${coreutils}/bin/cp "${dwarf-fortress.dwarf-fortress}/data/index" "${saveLocation}/data/index"
+    ${coreutils}/bin/chmod +w "${saveLocation}/data/index"
+    if [ -d "${saveLocation}/blueprints"  ]; then
+        echo copying blueprints dir
+        ${coreutils}/bin/cp -r "${dwarf-fortress.dwarf-fortress}/blueprints" "${saveLocation}/blueprints"
+        ${coreutils}/bin/chmod --recursive +w "${saveLocation}/blueprints"
+    fi
     export NIXPKGS_DF_HOME=${environment}
-    exec ${util-linux}/bin/unshare -mc --keep-caps ${exec-overlay} ${environment}/dfhack "$@"
+    exec ${environment}/dfhack "$@"
   '';
 in
 writeShellScriptBin "dwarf-fortress${suffix}" (if enableDFHack then hack-script else df-script)
