@@ -96,7 +96,7 @@ let
     ${coreutils}/bin/chmod +w "${saveLocation}/data/index"
     if ! [ -d "${saveLocation}/blueprints"  ]; then
         echo copying blueprints dir
-        ${coreutils}/bin/cp -r "${dwarf-fortress.dwarf-fortress}/blueprints" "${saveLocation}/blueprints"
+        ${coreutils}/bin/cp -r "${dwarf-fortress.dfhack}/blueprints" "${saveLocation}/blueprints"
         ${coreutils}/bin/chmod --recursive +w "${saveLocation}/blueprints"
     fi
     export NIXPKGS_DF_HOME=${environment}
