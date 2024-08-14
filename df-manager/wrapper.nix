@@ -87,12 +87,14 @@ let
     echo game directory: '${environment}'
     ${coreutils}/bin/mkdir -p "${saveLocation}/save"
     ${coreutils}/bin/mkdir -p "${saveLocation}/data/save"
+    ${coreutils}/bin/mkdir -p "${saveLocation}/dfhack-config"
     ${coreutils}/bin/touch "${saveLocation}/stderr.log"
     ${coreutils}/bin/touch "${saveLocation}/gamelog.txt"
     ${coreutils}/bin/touch "${saveLocation}/strace.log"
+    ${coreutils}/bin/touch "${saveLocation}/dfhack-config/command_counts.json"
     ${coreutils}/bin/cp "${dwarf-fortress.dwarf-fortress}/data/index" "${saveLocation}/data/index"
     ${coreutils}/bin/chmod +w "${saveLocation}/data/index"
-    if [ -d "${saveLocation}/blueprints"  ]; then
+    if ! [ -d "${saveLocation}/blueprints"  ]; then
         echo copying blueprints dir
         ${coreutils}/bin/cp -r "${dwarf-fortress.dwarf-fortress}/blueprints" "${saveLocation}/blueprints"
         ${coreutils}/bin/chmod --recursive +w "${saveLocation}/blueprints"
