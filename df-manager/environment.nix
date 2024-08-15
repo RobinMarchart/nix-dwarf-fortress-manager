@@ -42,13 +42,13 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
         name = "df-mods";
         paths = modsList;
       };
-      mutOverlay = runCommand "df-mut-overlay" {} (
+      mutOverlay = runCommand "df-mut-overlay" { } (
         ''
-        mkdir -p $out
-          echo linking mutable save files
-          ln -s "${saveLocation}/save" "$out/save"
-          mkdir $out/data
-          ln -s "${saveLocation}/data/save" "$out/data/save"
+          mkdir -p $out
+            echo linking mutable save files
+            ln -s "${saveLocation}/save" "$out/save"
+            mkdir $out/data
+            ln -s "${saveLocation}/data/save" "$out/data/save"
         ''
         + lib.optionalString (!newDf) ''
 
@@ -68,7 +68,7 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
           mkdir "$out/mods"
           touch "$out/mods/.empty"
         ''
-        + lib.optionalString enableDFHack ''
+        + lib.optionalString (enableDFHack && (!newDf)) ''
 
           echo linking mutable blueprint dir
           rm -rf "$out/blueprints"
@@ -77,14 +77,18 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
           mkdir -p "$out/dfhack-config"
           ln -s "${saveLocation}/dfhack-config/command_counts.json" "$out/dfhack-config/command_counts.json"
         ''
+        + lib.optionalString (enableDFHack && newDf) ''
+
+          ln -s "${saveLocation}/dfhack-config" "$out/dfhack-config"
+        ''
       );
     in
     buildEnv {
       name = "df.environment";
       ignoreCollisions = true;
       paths =
-        [mutOverlay] ++
-        extraPackages
+        [ mutOverlay ]
+        ++ extraPackages
         ++ [ settingsPkg ]
         ++ lib.optional enableDFHack settingsHackPkg
         ++ [ mods-dir ]
