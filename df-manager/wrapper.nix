@@ -99,15 +99,21 @@ let
     '';
   hack-script =
     df-base-script
-    + ''
-
-      ${coreutils}/bin/mkdir -p "${saveLocation}/dfhack-config"
-      ${coreutils}/bin/touch "${saveLocation}/dfhack-config/command_counts.json"
+    + lib.optionalString (!newDf) ''
       if ! [ -d "${saveLocation}/blueprints"  ]; then
           echo copying blueprints dir
           ${coreutils}/bin/cp -r "${dwarf-fortress.dfhack}/blueprints" "${saveLocation}/blueprints"
           ${coreutils}/bin/chmod --recursive +w "${saveLocation}/blueprints"
       fi
+    ''
+    + lib.optionalString newDf ''
+      echo creating blueprints dir
+      ${coreutils}/bin/mkdir -p "${saveLocation}/blueprints"
+    ''
+    + ''
+
+      ${coreutils}/bin/mkdir -p "${saveLocation}/dfhack-config"
+      ${coreutils}/bin/touch "${saveLocation}/dfhack-config/command_counts.json"
       exec ${environment}/dfhack "$@"
     '';
 in

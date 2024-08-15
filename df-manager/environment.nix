@@ -44,9 +44,10 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
       };
       mutOverlay = runCommand "df-mut-overlay" {} (
         ''
+        mkdir -p $out
           echo linking mutable save files
           ln -s "${saveLocation}/save" "$out/save"
-          mkdir -p $out/data
+          mkdir $out/data
           ln -s "${saveLocation}/data/save" "$out/data/save"
         ''
         + lib.optionalString (!newDf) ''
