@@ -10,5 +10,4 @@ void set_ptracer_any()
 {
 	if (-1 == prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0))
 		perror("prctl");
-	else puts("ptrace enabled");
 }
