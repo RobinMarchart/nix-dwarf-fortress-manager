@@ -36,6 +36,7 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
   modsList
   (
     let
+      newDf = dwarf-fortress-unwrapped.baseVersion >= 50;
       mods-dir = buildEnv {
         name = "df-mods";
         paths = modsList;
@@ -57,6 +58,9 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
           echo linking mutable save files
           ln -s "${saveLocation}/save" "$out/save"
           ln -s "${saveLocation}/data/save" "$out/data/save"
+        ''
+        + lib.optionalString (!newDf) ''
+
           echo linking mutable log files
           ln -s "${saveLocation}/stderr.log" "$out/stderr.log"
           ln -s "${saveLocation}/gamelog.txt" "$out/gamelog.txt"
@@ -64,6 +68,14 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
           echo linking mutable index file
           rm "$out/data/index"
           ln -s "${saveLocation}/data/index" "$out/data/index"
+        ''
+        + lib.optionalString newDf ''
+
+          echo linking log directory
+          ln -s "${saveLocation}/logs" "$out"
+          if ! [ -e "$out/mods" ]; then
+            mkdir "$out/mods"
+          fi
         ''
         + lib.optionalString enableDFHack ''
 
