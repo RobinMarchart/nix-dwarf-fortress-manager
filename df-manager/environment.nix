@@ -80,7 +80,7 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
         + lib.optionalString enableDFHack ''
 
           echo linking mutable blueprint dir
-          rm "$out/blueprints"
+          rm -rf "$out/blueprints"
           ln -s "${saveLocation}/blueprints" "$out/blueprints"
           ln -s "${saveLocation}/dfhack-config/command_counts.json" "$out/dfhack-config/command_counts.json"
         '';
