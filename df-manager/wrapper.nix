@@ -6,9 +6,11 @@
   settingsPkg,
   settingsHackPkg,
   environmentPkg,
+  ptracerPkg,
   enableDFHack ? false,
   enableTextMode ? false,
   enableTWBT ? false,
+  enableTherapist ? false,
   enableTruetype ? null,
   enableFPS ? false,
   enableSound ? true,
@@ -90,6 +92,12 @@ let
     + lib.optionalString newDf ''
 
       ${coreutils}/bin/mkdir -p "${saveLocation}/logs"
+    ''
+    + lib.optionalString enableTherapist ''
+
+      export LD_PRELOAD="$LD_PRELOAD:${ptracerPkg}"
+      echo starting dwarf therapist
+      ${dwarf-fortress.dwarf-therapist}/bin/dwarftherapist > ${saveLocation}/therapy.log 2>&1 &
     '';
   df-script =
     df-base-script
@@ -98,12 +106,12 @@ let
       exec ${environment}/run_df "$@"
     '';
   hack-script =
-    df-base-script+
-      ''
+    df-base-script
+    + ''
 
       ${coreutils}/bin/mkdir -p "${saveLocation}/dfhack-config"
       ${coreutils}/bin/touch "${saveLocation}/dfhack-config/command_counts.json"
-''
+    ''
     + lib.optionalString (!newDf) ''
 
       if ! [ -d "${saveLocation}/blueprints"  ]; then
