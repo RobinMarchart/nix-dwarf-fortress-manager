@@ -1,6 +1,7 @@
 {
   lib,
   buildEnv,
+  runCommand,
   dwarf-fortress-unwrapped,
   dfhack,
   twbt,
@@ -41,22 +42,11 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
         name = "df-mods";
         paths = modsList;
       };
-    in
-    buildEnv {
-      name = "df.environment";
-      ignoreCollisions = true;
-      paths =
-        extraPackages
-        ++ [ settingsPkg ]
-        ++ lib.optional enableDFHack settingsHackPkg
-        ++ [ mods-dir ]
-        ++ lib.optional enableTWBT twbt.lib
-        ++ lib.optional enableDFHack dfhack
-        ++ [ dwarf-fortress-unwrapped ];
-      postBuild =
+      mutOverlay = runCommand "df-mut-overlay" {} (
         ''
           echo linking mutable save files
           ln -s "${saveLocation}/save" "$out/save"
+          mkdir -p $out/data
           ln -s "${saveLocation}/data/save" "$out/data/save"
         ''
         + lib.optionalString (!newDf) ''
@@ -73,16 +63,32 @@ lib.throwIf (enableTWBT && (twbt == null || twbt == { }))
 
           echo linking log directory
           ln -s "${saveLocation}/logs" "$out"
-          if ! [ -e "$out/mods" ]; then
-            mkdir "$out/mods"
-          fi
+          echo creating mods dir
+          mkdir "$out/mods"
+          touch "$out/mods/.empty"
         ''
         + lib.optionalString enableDFHack ''
 
           echo linking mutable blueprint dir
           rm -rf "$out/blueprints"
           ln -s "${saveLocation}/blueprints" "$out/blueprints"
+          echo linking command_counts
+          mkdir -p "$out/dfhack-config"
           ln -s "${saveLocation}/dfhack-config/command_counts.json" "$out/dfhack-config/command_counts.json"
-        '';
+        ''
+      );
+    in
+    buildEnv {
+      name = "df.environment";
+      ignoreCollisions = true;
+      paths =
+        [mutOverlay] ++
+        extraPackages
+        ++ [ settingsPkg ]
+        ++ lib.optional enableDFHack settingsHackPkg
+        ++ [ mods-dir ]
+        ++ lib.optional enableTWBT twbt.lib
+        ++ lib.optional enableDFHack dfhack
+        ++ [ dwarf-fortress-unwrapped ];
     }
   )
