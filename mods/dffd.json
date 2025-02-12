@@ -19,7 +19,7 @@
     "source": {
         "1.0": {
             "df-version": ["0.47.05"],
-            "rm": [],
+            "rm": ["raw/objects/\\*"],
             "url": "https://dffd.bay12games.com/download.php?id=15662&f=RDEM1.0.zip",
             "hash": "sha256-TAd1Xk/6gQV8kQ6p34BEwWQLxr94Ec33yF30sNImJmI="
         }
